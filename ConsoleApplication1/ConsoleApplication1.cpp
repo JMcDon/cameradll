@@ -14,7 +14,7 @@
 int main(int argc, char** argv)
 {
 	OneFrame test = OneFrame();
-	test.RecordVideo();
+	test.TakePicture("C:\\Users\\jason.mcdonald\\Desktop\\Pictures\\TestFrame");
 
 	//RecordVideo();
 	//getchar();
