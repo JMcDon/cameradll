@@ -34,12 +34,13 @@ int _setup_camera(fc2Error* error, fc2Context* context, fc2PGRGuid* guid)
 	return 0;
 }
 
-int Save_Video(fc2Context context, int frames = 1000)
+int Save_Video(fc2Context context)
 {
 	fc2Error error;
 	fc2Image rawImage;
 	fc2AVIContext aviContext;
 	fc2H264Option h264Option;
+	int frames = 1000;
 	int i;
 
 	error = fc2CreateAVI(&aviContext);

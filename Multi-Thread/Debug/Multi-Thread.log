@@ -1,0 +1,22 @@
+﻿Build started 4/14/2015 1:44:14 PM.
+     1>Project "C:\Users\jason.mcdonald\Documents\Visual Studio 2013\Projects\ConsoleApplication1\Multi-Thread\Multi-Thread.vcxproj" on node 4 (Rebuild target(s)).
+     1>ClCompile:
+         C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\CL.exe /c /I"C:\Users\jason.mcdonald\Documents\Visual Studio 2013\Projects\ConsoleApplication1\Multi-Thread" /ZI /nologo /W3 /WX- /sdl /Od /Oy- /D CODE_ANALYSIS /D WIN32 /D _DEBUG /D _CONSOLE /D _LIB /Gm /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Fo"Debug\\" /Fd"Debug\vc120.pdb" /Gd /TC /analyze /analyze:plugin"C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\\bin\localespc.dll" /errorReport:prompt   /analyze:quiet mthread.c tinycthread.c
+         tinycthread.c
+     1>c:\users\jason.mcdonald\documents\visual studio 2013\projects\consoleapplication1\multi-thread\tinycthread.c(295): warning C4244: 'initializing' : conversion from 'time_t' to 'DWORD', possible loss of data
+     1>c:\users\jason.mcdonald\documents\visual studio 2013\projects\consoleapplication1\multi-thread\tinycthread.c(475): warning C4244: '=' : conversion from 'time_t' to 'DWORD', possible loss of data
+         mthread.c
+         Running Code Analysis for C/C++...
+         Generating Code...
+       Link:
+         C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\link.exe /ERRORREPORT:PROMPT /OUT:"C:\Users\jason.mcdonald\Documents\Visual Studio 2013\Projects\ConsoleApplication1\Debug\Multi-Thread.exe" /INCREMENTAL /NOLOGO kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /DEBUG /PDB:"C:\Users\jason.mcdonald\Documents\Visual Studio 2013\Projects\ConsoleApplication1\Debug\Multi-Thread.pdb" /SUBSYSTEM:CONSOLE /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"C:\Users\jason.mcdonald\Documents\Visual Studio 2013\Projects\ConsoleApplication1\Debug\Multi-Thread.lib" /MACHINE:X86 Debug\mthread.obj
+         Debug\tinycthread.obj
+         Multi-Thread.vcxproj -> C:\Users\jason.mcdonald\Documents\Visual Studio 2013\Projects\ConsoleApplication1\Debug\Multi-Thread.exe
+     1>c:\users\jason.mcdonald\documents\visual studio 2013\projects\consoleapplication1\multi-thread\mthread.c(49): warning C6031: Return value ignored: 'getchar'.
+     1>c:\users\jason.mcdonald\documents\visual studio 2013\projects\consoleapplication1\multi-thread\tinycthread.c(103): warning C26115: Failing to release lock 'mtx->mHandle' in function 'mtx_trylock'.
+     1>c:\users\jason.mcdonald\documents\visual studio 2013\projects\consoleapplication1\multi-thread\tinycthread.c(437): warning C6102: Using 'dwRes' from failed function call at line '436'.
+     1>Done Building Project "C:\Users\jason.mcdonald\Documents\Visual Studio 2013\Projects\ConsoleApplication1\Multi-Thread\Multi-Thread.vcxproj" (Rebuild target(s)).
+
+Build succeeded.
+
+Time Elapsed 00:00:04.20

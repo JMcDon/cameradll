@@ -1,141 +1,102 @@
+#define CHKERROR(err,msg) 	if (err != FC2_ERROR_OK){ printf("%s: %d\n", msg, err); return -1; }
 
 
-class OneFrame
+typedef struct {
+	fc2Error error;
+	fc2Image rawImage;
+	fc2Image saveImage;
+	fc2Context context;
+	fc2PGRGuid guid;
+}camera;
+
+camera* g_cam;
+
+
+// This fucntion creates the fc2 context and gets the camera GUID. From there it turns 
+// the camera on and everything should be set up for captureing images
+int _setup(){
+
+	unsigned int cameras_found = 0;
+
+	g_cam->error = fc2CreateContext(&g_cam->context);
+	CHKERROR(g_cam->error, "Error in fc2CreateContext");
+
+	g_cam->error = fc2GetNumOfCameras(g_cam->context, &cameras_found);
+	CHKERROR(g_cam->error, "Error in fc2GetNumOfcameras");
+
+	if (cameras_found == 0)
+	{
+		printf("No cameras detected.\n");
+		return -1;
+	}
+
+	g_cam->error = fc2GetCameraFromIndex(g_cam->context, 0, &g_cam->guid);
+	CHKERROR(g_cam->error, "Error in fc2GetcameraFromIndex");
+
+	g_cam->error = fc2Connect(g_cam->context, &g_cam->guid);
+	CHKERROR(g_cam->error, "Error in fc2Connect");
+
+	g_cam->error = fc2StartCapture(g_cam->context);
+	CHKERROR(g_cam->error, "fc2StartCapture");
+
+	g_cam->error = fc2CreateImage(&g_cam->rawImage);
+	g_cam->error = fc2CreateImage(&g_cam->saveImage);
+	CHKERROR(g_cam->error, "Error in fc2CreateImage");
+
+	return 0;
+}
+
+//This fucntion creates a frame and stores it
+int _save_frame()
 {
-	int _setup(fc2Error* error, fc2Context* context, fc2PGRGuid* guid){
+	g_cam->error = fc2RetrieveBuffer(g_cam->context, &g_cam->rawImage);
+	CHKERROR(g_cam->error, "Error in retrieveBuffer");
 
-		unsigned int cameras_found = 0;
-		*error = fc2CreateContext(context);
-		if (*error != FC2_ERROR_OK)
-		{
-			//printf("Error in fc2CreateContext: %d\n", error);
-			return -1;
-		}
+	fc2ConvertImageTo(FC2_PIXEL_FORMAT_RGB8, &g_cam->rawImage, &g_cam->saveImage);
+	return 0;
+}
 
-		*error = fc2GetNumOfCameras(*context, &cameras_found);
-		if (*error != FC2_ERROR_OK)
-		{
-			//printf("Error in fc2GetNumOfCameras: %d\n", error);
-			return -1;
-		}
 
-		if (cameras_found == 0)
-		{
-			//printf("No cameras detected.\n");
-			return -1;
-		}
+int Create(){
+	g_cam = malloc(sizeof(camera)); //deallocated in CleanUp()
+	int success = 0;
 
-		*error = fc2GetCameraFromIndex(*context, 0, guid);
-		if (*error != FC2_ERROR_OK)
-		{
-			//printf("Error in fc2GetCameraFromIndex: %d\n", error);
-			return -1;
-		}
-		return 0;
-	}
-
-	int _save_frame(fc2Context context, char file_location[], int frames = 1000)
+	success = _setup(); 
+	if (success != 0)
 	{
-		fc2Error error;
-		fc2Image rawImage;
-		fc2Image saveImage;
-		char buf[256];
-
-		error = fc2CreateImage(&rawImage);
-		error = fc2CreateImage(&saveImage);
-		if (error != FC2_ERROR_OK)
-		{
-			//printf("Error in fc2CreateImage: %d\n", error);
-			return -1;
-		}
-
-		error = fc2RetrieveBuffer(context, &rawImage);
-		if (error != FC2_ERROR_OK)
-		{
-			//printf("Error in retrieveBuffer: %d\n", error);
-			return -1;
-		}
-
-		sprintf_s(buf, "%s%s", file_location, ".jpeg"); // concatinate file extension
-		fc2ConvertImageTo(FC2_PIXEL_FORMAT_RGBU, &rawImage, &saveImage);
-		error = fc2SaveImage(&saveImage, buf, FC2_JPEG);
-		if (error != FC2_ERROR_OK)
-		{
-			//printf("Error in saving image: %d\n", error);
-			return -1;
-		}
-		
-	
-		if (error != FC2_ERROR_OK)
-		{
-			//printf("Error in saving image: %d\n", error);
-			return -1;
-		}
-
-		error = fc2DestroyImage(&rawImage);
-		if (error != FC2_ERROR_OK)
-		{
-			//printf("Error in fc2DestroyImaged: %d\n", error);
-			return -1;
-		}
-		return 0;
+		printf("Error setting up camera\n");
+		return -1;
 	}
 
+	_save_frame();
 
-	int _connect_camera(fc2Context context, fc2PGRGuid guid, char file_location[])
-	{
-		fc2Error error;
+	return 0;
+}
 
-		error = fc2Connect(context, &guid);
-		if (error != FC2_ERROR_OK)
-		{
-			//printf("Error in fc2Connect: %d\n", error);
-			return -1;
-		}
+fc2Image GrabImage(){
+	unsigned char** picture = NULL;
 
-		error = fc2StartCapture(context);
-		if (error != FC2_ERROR_OK)
-		{
-			//printf("Error in fc2StartCapture: %d\n", error);
-			return -1;
-		}
+	fc2Image return_image = g_cam->saveImage;
+	char * ima = g_cam->saveImage.pData;
+	//fc2GetImageData(&g_cam->saveImage, &picture);
+	printf("%s", ima);
+	_save_frame();
+	return return_image;
 
-		_save_frame(context, file_location);
+}
 
-		error = fc2StopCapture(context);
-		if (error != FC2_ERROR_OK)
-		{
-			//printf("Error in fc2StopCapture: %d\n", error);
-			return -1;
-		}
 
-		return 0;
-	}
-	public:
-	int TakePicture(char file_location[]){
-		fc2Error error;
-		fc2Context context;
-		fc2PGRGuid guid;
-		int success = 0;
+int CleanUp(){
+	g_cam->error = fc2DestroyImage(&g_cam->rawImage);
+	g_cam->error = fc2DestroyImage(&g_cam->saveImage);
+	CHKERROR(g_cam->error, "Error in fc2DestroyImaged");
 
-		success = _setup(&error, &context, &guid);
-		if (success != 0)
-		{
-			//printf("Error setting up camera\n");
-			return -1;
-		}
-		success = _connect_camera(context, guid, file_location);
-		if (success != 0)
-		{
-			//printf("Error running camera\n");
-			return -1;
-		}
+	g_cam->error = fc2StopCapture(g_cam->context);
+	CHKERROR(g_cam->error, "Error in fc2StopCapture");
 
-		error = fc2DestroyContext(context);
-		if (error != FC2_ERROR_OK)
-		{
-			//printf("Error in fc2DestroyContext: %d\n", error);
-			return -1;
-		}
-	}
-};
+	g_cam->error = fc2DestroyContext(g_cam->context);
+	CHKERROR(g_cam->error, "Error in Error in fc2DestroyContext");
+
+	free(g_cam);
+	return 0;
+}
